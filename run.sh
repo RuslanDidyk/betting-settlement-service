@@ -42,7 +42,7 @@ wait_for_service() {
 }
 
 # Start infrastructure
-echo -e "\n${YELLOW}Starting infrastructure services...${NC}"
+#echo -e "\n${YELLOW}Starting infrastructure services...${NC}"
 docker-compose up -d
 
 # Wait for services to be ready
@@ -54,20 +54,6 @@ wait_for_service "Betting Settlement Service" 8080
 echo -e "\n${GREEN}Infrastructure services are running!${NC}"
 echo "- Kafka UI: http://localhost:8090"
 echo "- RocketMQ Console: http://localhost:8091"
-
-## Build the application
-#echo -e "\n${YELLOW}Building the application...${NC}"
-#./gradlew clean build
-#
-#if [ $? -ne 0 ]; then
-#    echo -e "${RED}Build failed!${NC}"
-#    exit 1
-#fi
-
-# Run the application
-echo -e "\n${GREEN}Starting the application...${NC}"
 echo "- Application: http://localhost:8080"
 echo "- H2 Console: http://localhost:8080/h2-console"
 echo ""
-
-#./gradlew bootRun
