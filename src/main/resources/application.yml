@@ -1,0 +1,112 @@
+spring:
+  application:
+    name: sports-betting-settlement
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: ${JPA_SHOW_SQL:true}
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+  # Jackson Configuration
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+      accept-single-value-as-array: true
+    default-property-inclusion: non_null
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /
+  error:
+    include-message: always
+    include-binding-errors: always
+
+app:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    group-id: ${KAFKA_GROUP_ID:betting-settlement-group}
+    auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET:earliest}
+    session-timeout-ms: ${KAFKA_SESSION_TIMEOUT_MS:30000}
+    max-poll-records: ${KAFKA_MAX_POLL_RECORDS:500}
+    max-poll-interval-ms: ${KAFKA_MAX_POLL_INTERVAL_MS:300000}
+    enable-auto-commit: ${KAFKA_ENABLE_AUTO_COMMIT:false}
+    ack-mode: ${KAFKA_ACK_MODE:MANUAL_IMMEDIATE}
+    concurrency: ${KAFKA_CONCURRENCY:3}
+
+    # Producer properties
+    acks: ${KAFKA_ACKS:all}
+    retries: ${KAFKA_RETRIES:3}
+    batch-size: ${KAFKA_BATCH_SIZE:16384}
+    linger-ms: ${KAFKA_LINGER_MS:1}
+    buffer-memory: ${KAFKA_BUFFER_MEMORY:33554432}
+    compression-type: ${KAFKA_COMPRESSION_TYPE:snappy}
+
+    # Topic configuration
+    event-outcomes-topic: ${KAFKA_EVENT_OUTCOMES_TOPIC:event-outcomes}
+    topic-partitions: ${KAFKA_TOPIC_PARTITIONS:3}
+    topic-replication-factor: ${KAFKA_TOPIC_REPLICATION_FACTOR:1}
+
+  # Application-specific RocketMQ Configuration
+  rocketmq:
+    bet-settlements-topic: ${ROCKETMQ_BET_SETTLEMENTS_TOPIC:bet-settlements}
+    consumer-group: ${ROCKETMQ_CONSUMER_GROUP:bet-settlement-consumer-group}
+    send-timeout: ${ROCKETMQ_SEND_TIMEOUT:3000}
+
+rocketmq:
+  name-server: ${ROCKETMQ_NAME_SERVER:localhost:9876}
+  producer:
+    group: ${ROCKETMQ_PRODUCER_GROUP:betting-settlement-producer-group}
+    send-message-timeout: ${ROCKETMQ_SEND_MESSAGE_TIMEOUT:3000}
+    compress-message-body-threshold: ${ROCKETMQ_COMPRESS_THRESHOLD:4096}
+    max-message-size: ${ROCKETMQ_MAX_MESSAGE_SIZE:4194304}
+    retry-times-when-send-failed: ${ROCKETMQ_RETRY_TIMES_FAILED:2}
+    retry-next-server: ${ROCKETMQ_RETRY_NEXT_SERVER:true}
+    retry-times-when-send-async-failed: ${ROCKETMQ_RETRY_TIMES_ASYNC_FAILED:2}
+    enable-msg-trace: ${ROCKETMQ_ENABLE_MSG_TRACE:false}
+    customized-trace-topic: ${ROCKETMQ_TRACE_TOPIC:RMQ_SYS_TRACE_TOPIC}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    io.github.ruslandidyk.betting: ${LOG_LEVEL_APP:DEBUG}
+    org.apache.kafka: ${LOG_LEVEL_KAFKA:WARN}
+    org.apache.rocketmq: ${LOG_LEVEL_ROCKETMQ:INFO}
+    org.springframework.kafka: ${LOG_LEVEL_SPRING_KAFKA:INFO}
+    org.springframework.web: ${LOG_LEVEL_SPRING_WEB:INFO}
+    org.hibernate.SQL: ${LOG_LEVEL_SQL:DEBUG}
+    org.hibernate.type.descriptor.sql.BasicBinder: ${LOG_LEVEL_SQL_BIND:TRACE}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/betting-settlement.log
